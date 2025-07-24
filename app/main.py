@@ -33,3 +33,16 @@ def update_user(shared_id: str, user: schemas.UserUpdate, db: Session = Depends(
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
+
+# -------------------- LINK ENDPOINTS --------------------
+@app.post("/link-code", response_model=schemas.LinkCodeResponse)
+def generate_link_code(data: schemas.LinkCodeCreate, db: Session = Depends(get_db)):
+    code = crud.create_link_code(db, data.source, data.universal_id)
+    return {"code": code}
+
+@app.post("/link")
+def link_user(data: schemas.LinkCodeInput, db: Session = Depends(get_db)):
+    user = crud.apply_link_code(db, data.code, data.target_type, data.target_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Invalid or expired link code")
+    return {"message": "Linked successfully", "universal_id": str(user.universal_id)}

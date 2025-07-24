@@ -21,3 +21,16 @@ class UserOut(UserBase):
 
     class Config:
         orm_mode = True
+
+# --- 連携処理用 ---
+class LinkCodeCreate(BaseModel):
+    source: str  # discord, minecraft, web
+    universal_id: str
+
+class LinkCodeInput(BaseModel):
+    code: str
+    target_type: str  # discord, minecraft, web
+    target_id: str  # discord_id, minecraft_uuid, web_id（全部文字列）
+
+class LinkCodeResponse(BaseModel):
+    code: str

@@ -1,8 +1,6 @@
-# app/models.py
-from sqlalchemy import Column, Integer, BigInteger, String, Date, TIMESTAMP, Float, ForeignKey
+from sqlalchemy import Column, Integer, BigInteger, String, Date, TIMESTAMP, Float, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-
 from .database import Base
 
 class User(Base):
@@ -23,3 +21,11 @@ class Economy(Base):
     level = Column(Integer, default=1)
     last_active_date = Column(Date)
     last_work_time = Column(TIMESTAMP)
+
+class LinkCode(Base):
+    __tablename__ = "link_codes"
+
+    code = Column(String(6), primary_key=True, index=True)
+    source = Column(String, nullable=False)  # "discord", "minecraft", "web"
+    universal_id = Column(UUID(as_uuid=True), ForeignKey("users.universal_id"), nullable=False)
+    created_at = Column(TIMESTAMP, nullable=False)
