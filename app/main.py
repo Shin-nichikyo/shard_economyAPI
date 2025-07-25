@@ -16,9 +16,23 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/users")
-async def get_all_users():
-    return list(database.values())
+@router.get("/users")
+async def get_all_users(session: AsyncSession = Depends(get_async_session)):
+    try:
+        result = await session.execute(select(User))
+        users = result.scalars().all()
+        return [
+            {
+                "id": user.id,
+                "universal_id": str(user.universal_id),
+                "discord_id": user.discord_id,
+                "minecraft_uuid": str(user.minecraft_uuid) if user.minecraft_uuid else None,
+                "web_id": user.web_id
+            }
+            for user in users
+        ]
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.get("/user/{shared_id}", response_model=schemas.UserOut)
 def read_user(shared_id: str, db: Session = Depends(get_db)):
