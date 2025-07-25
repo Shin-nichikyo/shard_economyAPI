@@ -16,6 +16,10 @@ def get_db():
     finally:
         db.close()
 
+@app.get("/users")
+async def get_all_users():
+    return list(database.values())
+
 @app.get("/user/{shared_id}", response_model=schemas.UserOut)
 def read_user(shared_id: str, db: Session = Depends(get_db)):
     user = crud.get_user_by_shared_id(db, shared_id)
